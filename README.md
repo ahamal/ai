@@ -5,3 +5,4 @@ In this repo we explore the current state of AI world
 minimax
 ---
 1. Tic Tac Toe
+1. Chess
