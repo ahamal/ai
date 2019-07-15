@@ -28,8 +28,8 @@ export const NEW_BOARD = {
       [ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK],
       [PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN],
       [null, null, null, null, null, null, null, null],
-      [null, null, null, QUEEN, null, null, null, null],
-      [null, null, KING, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null],
       [null, null, null, null, null, null, null, null],
       [PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN],
       [ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK]
@@ -39,14 +39,13 @@ export const NEW_BOARD = {
       [BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK],
       [BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK],
       [null, null, null, null, null, null, null, null],
-      [null, null, null, BLACK, null, null, null, null],
-      [null, null, WHITE, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null],
       [null, null, null, null, null, null, null, null],
       [WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE],
       [WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE]
     ]
 }
-
 
 function inBounds(i, j) {
   return (i >= 0 && i <=7 && j >=0 && j <= 7);
@@ -71,16 +70,14 @@ function progressiveMoves(d, board, i, j, opponent) {
     oj = oj + d[1];
     p = inBounds(i + oi, j + oj) && board.colors[i + oi][j + oj];
     if (p === null || p === opponent)
-      result.push([i + oi, j + oj])
+      result.push([i, j, i + oi, j + oj])
   } while (p === null);
 
   return result;
 }
 
-
 export function movesForPieceAt(board, i, j) {
   const
-
     piece = board.pieces[i][j],
     color = board.colors[i][j],
     opponent = color === BLACK ? WHITE : BLACK,
@@ -96,15 +93,15 @@ export function movesForPieceAt(board, i, j) {
       jR = j - 1;
     
     if (inBounds(i1, jR) && board.colors[i1][jR] === opponent)
-      result.push([i1, j])
+      result.push([i, j, i1, jR])
     if (inBounds(i1, jL) && board.colors[i1][jL] === opponent)
-      result.push([i1, jL])
+      result.push([i, j, i1, jL])
     if (inBounds(i1, j) && board.colors[i1][j] === null) {
-      result.push([i1, j])
+      result.push([i, j, i1, j])
       if (firstMove) {
         const i2 = i1 + forward;
         if (inBounds(i2, j) && board.colors[i2][j] === null)
-          result.push([i2, j])
+          result.push([i, j, i2, j])
       }
     }
   }
@@ -131,7 +128,7 @@ export function movesForPieceAt(board, i, j) {
         p = inBounds(i1, j1) && board.colors[i1][j1];
 
       if (p === null || p === opponent)
-        result.push([i1, j1])
+        result.push([i, j, i1, j1])
     })
   }
   else if (piece === KING) {
@@ -142,12 +139,47 @@ export function movesForPieceAt(board, i, j) {
         p = inBounds(i1, j1) && board.colors[i1][j1];
 
       if (p === null || p === opponent)
-        result.push([i1, j1]);
+        result.push([i, j, i1, j1]);
     })
   }
   return result;
 }
 
+export function filterMoves(board, i, j, moves) {
+  return moves.filter(move => {
+    const
+      { pieces, colors } = board,
+      piece = pieces[i][j], color = colors[i][j],
+      piece2 = pieces[move[2]][move[3]], color2 = colors[move[2]][move[3]];
+    
+    // move
+    pieces[i][j] = null; colors[i][j] = null;
+    pieces[move[2]][move[3]] = piece; colors[move[2]][move[3]] = color;
+
+    // check
+    const result = !kingIsInDanger(board, color);
+
+    // revert
+    pieces[i][j] = piece; colors[i][j] = color;
+    pieces[move[2]][move[3]] = piece2; colors[move[2]][move[3]] = color2;
+    return result;
+  });
+}
+
+function kingIsInDanger(board, color) {
+  // slow algorithm. needs optimization.
+  const
+    opponent = color === WHITE ? BLACK : WHITE,
+    moves = allMoves(board, opponent);
+  
+  for (var i = 0; i < moves.length; i++)
+    if (board.pieces[moves[i][2]][moves[i][3]] === KING)
+      return true;
+}
+
+export function legalMovesForPieceAt(board, i, j) {
+  return filterMoves(board, i, j, movesForPieceAt(board, i, j));
+}
 
 export function allMoves(board, color) {
   var i, j;
@@ -156,8 +188,23 @@ export function allMoves(board, color) {
     for (j = 0; j < 8; j++)
       if (board.colors[i][j] === color)
         result = result.concat(movesForPieceAt(board, i, j));
-  
   return result;
 }
 
-// console.log(allMoves(NEW_BOARD, WHITE))
+export function checkWin(board, color) {
+  return allMoves(board, color).length === 0;
+}
+
+
+// AI
+export function botMove(board, color) {
+
+}
+
+export function dumbBotMove(board, color) {
+  const
+    moves = allMoves(board, color),
+    randomIndex = Math.floor(Math.random() * moves.length);
+
+  return moves[randomIndex]
+}

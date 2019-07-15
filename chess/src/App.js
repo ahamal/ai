@@ -1,6 +1,9 @@
 import React from 'react';
 import './App.css';
-import { NEW_BOARD, PIECE_UNICODE, movesForPieceAt } from './chess';
+import {
+  NEW_BOARD, PIECE_UNICODE, legalMovesForPieceAt,
+  dumbBotMove
+} from './chess';
 import _ from 'lodash';
 
 class Game {
@@ -9,7 +12,7 @@ class Game {
     this.board = NEW_BOARD;
   }
 
-  act(playerId, move) {
+  move(playerId, move) {
     if (this.at !== 'in-game')
       return 'Game not started.';
 
@@ -17,7 +20,7 @@ class Game {
       return 'Not your turn';
 
     // if (!canMove(this.board, move))
-    // this.board[i][j] = id;
+    // this.board = movePiece(i, j, move);
     // this.playerTurn = this.playerTurn === 1 ? 2 : 1;
 
     // var winner = checkWin(this.board);
@@ -49,28 +52,66 @@ class Game {
 }
 
 
-function ChessBoard({ board, onCellClick, focus }) {
+
+class Bot {
+  joinGame(game) {
+    this.game = game;
+    game.onChange(this.handleGameChange);
+  }
+
+  handleGameChange = () => {
+    if (this.game.at === 'in-game' && this.game.playerTurn === 2)
+      this.move();
+  }
+
+  move() {
+    return this.game.move(2, dumbBotMove(this.game.board));
+  }
+}
+
+
+class Human {
+  joinGame(game) {
+    this.game = game;
+    game.onChange(this.handleGameChange);
+  }
+
+  handleGameChange() {
+  }
+
+  move(i1, j1, i2, j2) {
+    return this.game.move(1, [i1, i2, j1, j2]);
+  }
+}
+
+
+function ChessBoard({ board, onCellClick, selected, allowedMoves }) {
   return (
     <div className="chess-board">
       { board.pieces.map((row, i) => (
-        <div
-          key={i}
-          className="chess-row">
-          { row.map((piece, j) => (
-            <div
-              key={j}
-              className={
-                'chess-cell' +
-                (focus && focus[0].findIndex(f => f[0] === i && f[1] === j) !== -1 ? ' focus0' : '') + 
-                (focus && focus[1].findIndex(f => f[0] === i && f[1] === j) !== -1 ? ' focus1' : '')
-              }
-              onClick={_ => onCellClick(i, j)}>
-              { piece ?
-                  PIECE_UNICODE[board.colors[i][j]][piece] :
+        <div key={i} className="chess-row">
+          { row.map((piece, j) => {
+            const
+              pieceUnicode = piece && PIECE_UNICODE[board.colors[i][j]][piece],
+              focus1 = selected && selected[0] === i && selected[1] === j,
+              focus2 = selected && (
+                allowedMoves.findIndex(f => f[2] === i && f[3] === j) !== -1
+              );
+
+            return (
+              <div
+                key={j}
+                className={ 'chess-cell' + (focus1 ? ' cell-focus1' : '') }
+                onClick={_ => onCellClick(i, j)}>
+                { focus1 && <div className="focus1" /> }
+                { focus2 && <div className="focus2" /> }
+                { pieceUnicode ? 
+                  <div className="piece">{pieceUnicode}</div> :
                   <>&nbsp;</>
-              }
-            </div>
-          )) }
+                }
+              </div>
+            )
+          }) }
         </div>
       )) }
     </div>
@@ -82,6 +123,12 @@ class App extends React.Component {
   constructor() {
     super();
     this.game = new Game();
+    this.human = new Human();
+    this.bot = new Bot();
+
+    this.human.joinGame(this.game);
+    this.bot.joinGame(this.game);
+
     this.game.onChange(_ => this.forceUpdate());
     this.state = {};
   }
@@ -92,18 +139,34 @@ class App extends React.Component {
         <ChessBoard
           board={this.game.board}
           onCellClick={this.handleCellClick}
-          focus={this.state.focus}/>
+          selected={this.state.selected}
+          allowedMoves={this.state.allowedMoves}
+          focus={this.state.focus} />
       </div>
     );
   }
 
   handleCellClick = (i, j) => {
-    this.setState({
-      focus: [
-        [[i, j]],
-        movesForPieceAt(this.game.board, i, j)
-      ]
-    }, _ => console.log(this.state))
+    const
+      { board } = this.game,
+      { selected } = this.state;
+    
+    if (!this.state.selected) {
+      this.setState({
+        selected: [i, j],
+        allowedMoves: legalMovesForPieceAt(board, i, j)
+      })
+    } else {
+      var legalClick = this.state.allowedMoves.findIndex(move => move[2] === i && move[3] === j) !== -1;
+      if (legalClick) {
+        this.setState({ selected: null, allowedMoves: null });
+        var feedback = this.human.move(selected[0], selected[1], i, j);
+        if (feedback)
+          alert(feedback);
+      } else {
+        this.setState({ selected: null, allowedMoves: null });
+      }
+    }
   }
 }
 
