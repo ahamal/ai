@@ -2,6 +2,11 @@
   
 }
 
+.home-screen {
+  text-align: center;
+  padding-top: 50px;
+}
+
 .chess-board {
   margin: 40px auto 0px auto;
   width: fit-content;

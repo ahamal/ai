@@ -2,41 +2,44 @@ import React from 'react';
 import './App.css';
 import {
   NEW_BOARD, PIECE_UNICODE, legalMovesForPieceAt,
-  dumbBotMove
+  WHITE, BLACK, movePiece, checkWinner, dumbBotMove, canMove
 } from './chess';
 import _ from 'lodash';
 
 class Game {
   constructor() {
-    this.at = 'beginning';
+    this.at = 'home';
     this.board = NEW_BOARD;
   }
 
-  move(playerId, move) {
-    if (this.at !== 'in-game')
+  move(move) {
+    if (this.at !== 'game')
       return 'Game not started.';
 
-    if (this.playerTurn !== playerId)
+    const color = this.board.colors[move[0]][move[1]];
+
+    if (this.turn !== color)
       return 'Not your turn';
 
-    // if (!canMove(this.board, move))
-    // this.board = movePiece(i, j, move);
-    // this.playerTurn = this.playerTurn === 1 ? 2 : 1;
+    if (!canMove(this.board, move))
+      return 'Invalid Move';
+    
+    this.board = movePiece(this.board, move);
+    this.turn = this.turn === WHITE ? BLACK : WHITE;
 
-    // var winner = checkWin(this.board);
-    // if (winner) {
-    //   this.winner = winner;
-    //   this.at = 'end-game';
-    // }
+    var winner = checkWinner(this.board)
+    if (winner) {
+      this.winner = winner;
+      this.at = 'end';
+    }
 
     this.triggerChange();
   }
 
   newGame(i) {
     this.board = _.cloneDeep(NEW_BOARD);
-    this.at = 'in-game';
-    this.playerTurn = i;
-    
+    this.at = 'game';
+    this.turn = WHITE;    
     this.triggerChange();
   }
 
@@ -60,12 +63,15 @@ class Bot {
   }
 
   handleGameChange = () => {
-    if (this.game.at === 'in-game' && this.game.playerTurn === 2)
+    if (this.game.at === 'game' && this.game.turn === BLACK)
       this.move();
   }
 
   move() {
-    return this.game.move(2, dumbBotMove(this.game.board));
+    const move = dumbBotMove(this.game.board, BLACK);
+    if (move)
+      return this.game.move(move);
+    alert('Can\t find a move')
   }
 }
 
@@ -80,7 +86,7 @@ class Human {
   }
 
   move(i1, j1, i2, j2) {
-    return this.game.move(1, [i1, i2, j1, j2]);
+    return this.game.move([i1, j1, i2, j2]);
   }
 }
 
@@ -118,6 +124,30 @@ function ChessBoard({ board, onCellClick, selected, allowedMoves }) {
   )
 }
 
+function HomeScreen({ game }) {
+  return (
+    <div className="home-screen">
+      <h1>Chess</h1>
+      <button onClick={_ => game.newGame()}>
+        New Game
+      </button>
+    </div>
+  )
+}
+
+function EndScreen({ game }) {
+  return (
+    <div className="end-screen">
+      <ChessBoard board={game.board} onCellClick={_ => _}/>
+      <div className="text-center">
+        <h2>{ game.winner === BLACK ? 'Black' : 'White' } Wins</h2>
+        <button onClick={_ => game.newGame()}>
+          New Game
+        </button>
+      </div>
+    </div>
+  )
+}
 
 class App extends React.Component {
   constructor() {
@@ -136,12 +166,22 @@ class App extends React.Component {
   render() {
     return (
       <div className="app">
-        <ChessBoard
-          board={this.game.board}
-          onCellClick={this.handleCellClick}
-          selected={this.state.selected}
-          allowedMoves={this.state.allowedMoves}
-          focus={this.state.focus} />
+        {this.game.at === 'home' && (
+          <HomeScreen game={this.game} />
+        ) }
+
+        { this.game.at === 'game' && (
+          <ChessBoard
+            board={this.game.board}
+            onCellClick={this.handleCellClick}
+            selected={this.state.selected}
+            allowedMoves={this.state.allowedMoves}
+            focus={this.state.focus} />
+        ) }
+
+        { this.game.at === 'end' && (
+          <EndScreen game={this.game} />
+        ) }
       </div>
     );
   }

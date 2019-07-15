@@ -1,5 +1,5 @@
 
-const
+export const
   PAWN = 'p',
   KNIGHT = 'n',
   BISHOP = 'b',
@@ -7,7 +7,7 @@ const
   QUEEN = 'q',
   KING = 'k';
 
-const
+export const
   WHITE = 'w',
   BLACK = 'b';
 
@@ -191,8 +191,43 @@ export function allMoves(board, color) {
   return result;
 }
 
-export function checkWin(board, color) {
-  return allMoves(board, color).length === 0;
+export function allLegalMoves(board, color) {
+  var i, j;
+  var result = [];
+  for (i = 0; i < 8; i++)
+    for (j = 0; j < 8; j++)
+      if (board.colors[i][j] === color)
+        result = result.concat(legalMovesForPieceAt(board, i, j));
+  return result;
+}
+
+
+export function checkWinner(board) {
+  if (allLegalMoves(board, BLACK).length === 0)
+    return WHITE;
+  
+  if (allLegalMoves(board, WHITE).length === 0)
+    return BLACK;
+  
+  return null;
+}
+
+export function canMove(board, move) {
+  var moves = legalMovesForPieceAt(board, move[0], move[1]);
+  return moves.findIndex(m => m[2] === move[2] && m[3] === move[3]) !== -1;
+}
+
+export function movePiece(board, move) {
+  const
+    { pieces, colors } = board,
+    [i1, j1, i2, j2] = move;
+  // move
+  pieces[i2][j2] = pieces[i1][j1];
+  colors[i2][j2] = colors[i1][j1];
+  pieces[i1][j1] = null;
+  colors[i1][j1] = null;
+  
+  return board;
 }
 
 
@@ -203,7 +238,7 @@ export function botMove(board, color) {
 
 export function dumbBotMove(board, color) {
   const
-    moves = allMoves(board, color),
+    moves = allLegalMoves(board, color),
     randomIndex = Math.floor(Math.random() * moves.length);
 
   return moves[randomIndex]
