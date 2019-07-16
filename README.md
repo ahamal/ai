@@ -1,4 +1,4 @@
-## Intellegence? or Algorithms?
+## Intelligence? or Algorithms?
 
 In this repo we explore the current state of AI world
 
