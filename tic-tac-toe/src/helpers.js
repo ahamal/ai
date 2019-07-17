@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 export const EMPTY_BOARD = [
   [null, null, null],
   [null, null, null],
@@ -29,14 +27,13 @@ export function checkWin(board) {
   if (b[2][0] !== null && b[2][0] === b[1][1] && b[1][1] === b[0][2])
     return b[1][1];
 
-
   r = true;
   for (i = 0; i < 3; i++)
     for (j = 0; j < 3; j++)
       r = r && (b[i][j] !== null);
 
   if (r)
-    return 3
+    return 3;
 
   return false;
 }
@@ -51,7 +48,6 @@ export function dumbBotMove(board) {
   return { i, j }
 }
 
-
 export function possibleMoves(board) {
   var i, j;
   var r = []
@@ -62,47 +58,52 @@ export function possibleMoves(board) {
   return r
 }
 
-export function minimax(b, depth, maximizing = true) {
-  var winner = checkWin(b);
-  if (winner)
-    return { value: (winner === 1 ? -1 : winner === 2 ? 1 : 0) }
+export function minimax(board, depth, maximizing) {
+  evaluated++;
 
-  if (depth === 0)
-    return { value: 0 };
+  var winner = checkWin(board);
+  if (winner || depth === 0)
+    return (winner === 1 ? -Infinity : winner === 2 ? Infinity : Math.random())
 
-  var result = null;
-  possibleMoves(b).forEach(({ i, j }) => {
-    const b1 = _.cloneDeep(b);
-    b1[i][j] = maximizing ? 2 : 1;
-    const r = minimax(b1, depth - 1, !maximizing);
-
-    if (
-      !result ||
-      (maximizing && result.value < r.value) ||
-      (!maximizing && result.value > r.value)
-    ) {
-      result = { value: r.value, i: i, j: j };
-    }
-  })
-  return result;
-}
-
-export function progressiveMinMax(b) {
-  for (var depth = 0; depth < 5; depth++) {
-    var { value, i, j } = minimax(b, depth);
-    // console.log(depth, value);
-
-    if (value === 1)
-      return { value, i, j }
+  var value;
+  if (maximizing) {
+    value = -Infinity;
+    possibleMoves(board).forEach(({ i, j }) => {
+      board[i][j] = 2;
+      value = Math.max(value, minimax(board, depth - 1, false));
+      board[i][j] = null;
+    });
+  } else {
+    value = Infinity;
+    possibleMoves(board).forEach(({ i, j }) => {
+      board[i][j] = 1;
+      value = Math.min(value, minimax(board, depth - 1, true));
+      board[i][j] = null;
+    });
   }
-  return { value, i, j }
+  return value;
 }
 
+var evaluated = 0, time;
 export function smarterBotMove(board) {
-  // const {i, j, value} = minimax(board, 4, true);
-  const { i, j, value } = progressiveMinMax(board);
-  
-  if (value === 1)
-    console.log('I\'m gonna win bro');
-  return { i, j }
+  var bestMove, bestValue = null;
+  evaluated = 0;
+  time = (new Date()).getTime();
+
+  possibleMoves(board).forEach(({i, j}) => {
+    board[i][j] = 2;
+    var value = minimax(board, 7, false);
+    board[i][j] = null;
+
+    if (bestValue === null || bestValue < value) {
+      bestValue = value;
+      bestMove = {i, j};
+    }
+  });
+
+  console.log('Nodes Evaluated: ', evaluated);
+  console.log('Time Taken: ', (new Date()).getTime() - time);
+  console.log('Best', bestMove, bestValue)
+
+  return bestMove;
 }

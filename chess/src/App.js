@@ -1,33 +1,32 @@
 import React from 'react';
+import { ChessBoard as Board, PIECE_UNICODE, WHITE, BLACK } from './chess';
+import { smartBotMove } from './bot';
+
 import './App.css';
-import {
-  NEW_BOARD, PIECE_UNICODE, legalMovesForPieceAt,
-  WHITE, BLACK, movePiece, checkWinner, dumbBotMove, canMove
-} from './chess';
-import _ from 'lodash';
 
 class Game {
   constructor() {
+    this.board = new Board();
     this.at = 'home';
-    this.board = NEW_BOARD;
   }
 
-  move(move) {
+  move(move) {    
     if (this.at !== 'game')
       return 'Game not started.';
 
-    const color = this.board.colors[move[0]][move[1]];
+    const
+      board = this.board;
 
-    if (this.turn !== color)
+    if (this.turn !== board.colorAt(move[0], move[1]))
       return 'Not your turn';
 
-    if (!canMove(this.board, move))
+    if (!board.canMove(move))
       return 'Invalid Move';
     
-    this.board = movePiece(this.board, move);
+    board.movePiece(move);
     this.turn = this.turn === WHITE ? BLACK : WHITE;
 
-    var winner = checkWinner(this.board)
+    var winner = board.checkWinner();
     if (winner) {
       this.winner = winner;
       this.at = 'end';
@@ -37,9 +36,9 @@ class Game {
   }
 
   newGame(i) {
-    this.board = _.cloneDeep(NEW_BOARD);
+    this.board.newBoard();
     this.at = 'game';
-    this.turn = WHITE;    
+    this.turn = WHITE;
     this.triggerChange();
   }
 
@@ -64,13 +63,15 @@ class Bot {
 
   handleGameChange = () => {
     if (this.game.at === 'game' && this.game.turn === BLACK)
-      this.move();
+      setTimeout(_ => this.move(), 100);
   }
 
   move() {
-    const move = dumbBotMove(this.game.board, BLACK);
+    const move = smartBotMove(this.game.board, BLACK);
+
     if (move)
       return this.game.move(move);
+    
     alert('Can\t find a move')
   }
 }
@@ -138,7 +139,7 @@ function HomeScreen({ game }) {
 function EndScreen({ game }) {
   return (
     <div className="end-screen">
-      <ChessBoard board={game.board} onCellClick={_ => _}/>
+      <ChessBoard board={game.board.board} onCellClick={_ => _}/>
       <div className="text-center">
         <h2>{ game.winner === BLACK ? 'Black' : 'White' } Wins</h2>
         <button onClick={_ => game.newGame()}>
@@ -172,7 +173,7 @@ class App extends React.Component {
 
         { this.game.at === 'game' && (
           <ChessBoard
-            board={this.game.board}
+            board={this.game.board.board}
             onCellClick={this.handleCellClick}
             selected={this.state.selected}
             allowedMoves={this.state.allowedMoves}
@@ -194,7 +195,7 @@ class App extends React.Component {
     if (!this.state.selected) {
       this.setState({
         selected: [i, j],
-        allowedMoves: legalMovesForPieceAt(board, i, j)
+        allowedMoves: board.legalMovesForPieceAt(i, j)
       })
     } else {
       var legalClick = this.state.allowedMoves.findIndex(move => move[2] === i && move[3] === j) !== -1;
