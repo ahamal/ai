@@ -1,0 +1,22 @@
+.app {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px 20px;
+  background: #fafafa;
+}
+
+.app .title {
+  font-size: 1.2em;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.app nav > div {
+  margin: 5px auto;
+}
+
+.app nav a {
+  text-decoration: none;
+  font-size: 14px;
+}
