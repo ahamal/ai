@@ -35,6 +35,12 @@ export default function App() {
             </div>
           </section>
 
+
+          <section>
+            <div>
+              Classic AIs
+            </div>
+
           <section>
             <div>
               Minimax
@@ -76,7 +82,8 @@ export default function App() {
               <Link to="/rompus-ai">Rompus World</Link>
             </div>
           </section>          
-          
+        </section>
+        
         </nav>
 
         <div className="content">
