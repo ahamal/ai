@@ -4,15 +4,53 @@
   height: 100%;
 }
 
-.app .left-nav {
+
+
+.app .nav-container {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  padding-bottom: 2em;
   width: 300px;
-  height: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  min-height: 100%;
+  z-index: 200;
+}
+
+
+.app .nav-contents {
   padding: 20px;
-  background: #eee;
+}
+
+.app .nav-contents .title {
+  font-weight: bold;
+}
+
+.app .nav-contents section {
+  margin-top: 2rem;
+}
+
+.app .nav-contents .section-title {
+  font-weight: bold;
+  margin-bottom: 0.4rem;
+}
+
+.app .nav-contents .article-link {
+  font-size: 1.4rem;
+  margin-bottom: 0.2rem;
+}
+
+.app .nav-contents .article-link .more {
+  font-family:'Courier New', Courier, monospace;
+  font-size: 1.2rem;
 }
 
 
-.app .content {
-  width: 300px;
-  height: 100%;
+.app .page-container {
+  margin-left: 300px;
+  background: #fcfcfc;
+  min-height: 100%;
 }
+
