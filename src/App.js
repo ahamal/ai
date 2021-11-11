@@ -1,10 +1,12 @@
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import './App.css';
 
+import ChessDemo from './chess/env/Demo';
+
 
 const navContents = [
   {
-    title: 'Theory',
+    title: 'AGI',
     links: [
       { to: "/0-motive", title: "Motivation" },
       { to: "/1-ci", title: "Identity/Continuity" },
@@ -12,23 +14,36 @@ const navContents = [
       { to: "/3-policy", title: "Policies, Curiosity and Planning" }
     ]
   },
+  
   {
-    title: 'Classic AIs Examples',
+    title: 'Chess',
     links: [
-      { to: "/chess-minimax", title: "Chess", more: "Minimax" },
-      { to: "/tic-tac-toe", title: "Tic Tac Toe", more: "Minimax" },
-      { to: "/taxi-rl", title: "Taxi", more: "Reinforcement Learning" },
-      { to: "/cartpole-drl", title: "Cartpole", more: "Deep Reinforcement Learning" }
+      { to: "/chess", title: "Environment", View: ChessDemo },
+      { to: "/chess-scoring", title: "Scoring" },
+      { to: "/chess-minimax", title: "Minimax" },
+    ]
+  },
+
+    {
+    title: 'Tic Tac Toe',
+    links: [
+      { to: "/tictactoe-env", title: "Environment", View: ChessDemo },
+      { to: "/tictactoe-minimax", title: "Minimax" },
+    ]
+  },
+
+  {
+    title: 'OpenAI Taxi v2',
+    links: [
+      { to: "/taxi-env", title: "Environment" },
+      { to: "/taxi-rl", title: "Reinforcement Learning" },
     ]
   },
   {
-    title: 'Environments',
+    title: 'OpenAI Cartpole',
     links: [
-      { to: "/chess", title: "Chess" },
-      { to: "/tic-tac-toe", title: "Tic-Tac-Toe" },
-      { to: "/taxi-v2", title: "OpenAI Taxi v2" },
-      { to: "/cartpole-v1", title: "OpenAI Cartpole v1" },
-      { to: "/taxi-v2", title: "OpenAI Bipedal Walker" },
+      { to: "/cartpole-env", title: "Environment" },
+      { to: "/cartpole-drl", title: "Deep Reinforcement Learning" }
     ]
   }
 ]
@@ -52,7 +67,7 @@ export default function App() {
 function Nav() {
   return (
     <div className="nav-contents">
-      <h4 className="title">AI Research</h4>
+      <Link to="/" className="title">AI Research</Link>
       
       { navContents.map((o, i) => (
         <section key={i}>
@@ -76,13 +91,15 @@ function Page({ location }) {
       null
     ),
     title = link && link.title,
-    Component = link.Component || Blank;
+    View = (link && link.View) || Blank;
 
-  return (
-    <div className="page">
-      {title}
-      <Component />
-    </div>
+    return (
+      <>
+        <div className="page-title">{title}</div>
+        <div className="page">
+          <View />
+        </div>
+      </>
   )
 }
 

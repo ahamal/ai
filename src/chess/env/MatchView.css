@@ -1,0 +1,57 @@
+.match-view {
+    font-family: monospace;
+    white-space: pre-wrap;
+  }
+  
+  .match-view .board {
+    width: 380px;
+    padding: 2px;
+    margin: auto;
+    background: #fafafa;
+  }
+  
+  .match-view .row {
+    height: 40px;
+    margin: 2px;
+  }
+  
+  .match-view .square {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    font-size: 24px;
+    text-align: center;
+    border: 2px solid #0000;
+    margin: 1px;
+    user-select: none;
+  }
+  
+  .match-view .row .square.dark {
+    background: #eee;
+  }
+  
+  .match-view .square.has-piece {
+    cursor: pointer;
+  }
+  
+  .match-view .row .square.selected {
+    border: 2px solid #cce;
+  }
+  
+  .match-view .row .square.can-move {
+    background: #ccea;
+    cursor: pointer;
+  }
+  
+  .match-view .undo-button {
+    color: #99e;
+    cursor: pointer;
+    float: right;
+    padding: 2px 5px;
+  }
+  
+  .match-view .state {
+    text-align: center;  
+    margin-top: 40px;
+  }

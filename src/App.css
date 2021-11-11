@@ -4,8 +4,6 @@
   height: 100%;
 }
 
-
-
 .app .nav-container {
   position: fixed;
   top: 0;
@@ -17,8 +15,8 @@
   overflow-y: hidden;
   min-height: 100%;
   z-index: 200;
+  border-right: 1px solid #eee;
 }
-
 
 .app .nav-contents {
   padding: 20px;
@@ -26,6 +24,9 @@
 
 .app .nav-contents .title {
   font-weight: bold;
+  text-decoration: none;
+  color: #333;
+  font-size: 1.8em;
 }
 
 .app .nav-contents section {
@@ -42,11 +43,14 @@
   margin-bottom: 0.2rem;
 }
 
+.app .nav-contents .article-link a {
+  text-decoration: none;
+}
+
 .app .nav-contents .article-link .more {
   font-family:'Courier New', Courier, monospace;
   font-size: 1.2rem;
 }
-
 
 .app .page-container {
   margin-left: 300px;
@@ -54,3 +58,14 @@
   min-height: 100%;
 }
 
+.app .page-container .page-title {
+  font-weight: bold;
+  padding: 20px;
+  font-size: 1.2em;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.app .page-container .page {
+  padding: 20px;
+}
