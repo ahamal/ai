@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import './App.css';
 
 import ChessDemo from './chess/env/Demo';
-
+import CartpoleDemo from './cartpole/env/Demo';
 
 const navContents = [
   {
@@ -42,7 +42,7 @@ const navContents = [
   {
     title: 'OpenAI Cartpole',
     links: [
-      { to: "/cartpole-env", title: "Environment" },
+      { to: "/cartpole-env", title: "Environment", View: CartpoleDemo },
       { to: "/cartpole-drl", title: "Deep Reinforcement Learning" }
     ]
   }

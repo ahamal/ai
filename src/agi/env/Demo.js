@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { World, WorldView, UserAgent } from './world';
+// import { World, WorldView, UserAgent } from './world';
 import './app.css';
 
 
 function Demo() {
-  const
-    [agent, ] = useState(_ => new UserAgent()),
-    [world, ] = useState(_ => new World());
+  // const
+  //   [env, ] = useState(_ => new CartPoleEnv()),
+  //   [world, ] = useState(_ => new World());
   
   useEffect(_ => agent.connect(world));
   
